@@ -2,12 +2,14 @@ import QtQuick
 
 import QtQml.Models
 
-import QtQuick.Controls
+import QtQuick.Controls.Fusion
 import QtQuick.Layouts
 import QtQuick.Shapes
 
 Item {
     id: root
+    property int minimumWidth: 360
+    property int minimumHeight: 480
     Item {
         id: imagePlaceholder
         Rectangle {
@@ -103,19 +105,22 @@ Item {
                         text: index + 1
                     }
                     ItemDelegate {
-                        width: itemList.width - moveHandle.width - options.width
+                        width: itemList.width - moveHandle.width
                         height: moveHandle.height
+                        rightPadding: options.width + 5 + options.anchors.rightMargin
                         text: desc
-                    }
-                    Row {
-                        id: options
-                        Button {
-                            height: moveHandle.height
-                            text: "编辑描述"
-                        }
-                        Button {
-                            height: moveHandle.height
-                            text: "移除"
+                        Row {
+                            id: options
+                            anchors.right: parent.right
+                            anchors.rightMargin: 3
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 3
+                            Button {
+                                text: "编辑描述"
+                            }
+                            Button {
+                                text: "移除"
+                            }
                         }
                     }
                 }
@@ -154,7 +159,6 @@ Item {
             target: itemListPlaceholder
             Layout.preferredWidth: root.width
             Layout.fillHeight: true
-            // Layout.minimumHeight: itemListPlaceholder.minimumHeight
         }
     }
     RowLayout {

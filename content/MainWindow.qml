@@ -9,6 +9,8 @@ Window {
     height: 720
     visible: true
     color: "#222222"
+    minimumWidth: creator.minimumWidth + creator.anchors.margins * 2
+    minimumHeight: creator.minimumHeight + creator.anchors.margins * 2
     Creator {
         anchors.fill: parent
         anchors.margins: 20
