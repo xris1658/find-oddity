@@ -1,0 +1,5 @@
+module content
+
+Creator 1.0 Creator.qml
+MainWindow 1.0 MainWindow.qml
+Player 1.0 Player.qml
