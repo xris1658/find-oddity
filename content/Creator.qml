@@ -4,6 +4,7 @@ import QtQml.Models
 
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Shapes
 
 Item {
     id: root
@@ -15,6 +16,63 @@ Item {
             height: width
             color: "transparent"
             border.color: "#808080"
+        }
+        Shape {
+            z: 2
+            containsMode: Shape.FillContains
+            anchors.fill: parent
+            clip: true
+            visible: pathPolyline.path.length !== 0
+            ShapePath {
+                id: lassoPath
+                strokeColor: "#FF0000"
+                strokeWidth: 2
+                startX: 0
+                startY: 0
+                fillColor: lassoShapeArea.containsMouse? "#808080": "transparent"
+                PathPolyline {
+                    id: pathPolyline
+                }
+            }
+            MouseArea {
+                id: lassoShapeArea
+                anchors.fill: parent
+                hoverEnabled: true
+            }
+        }
+
+        MouseArea {
+            id: lassoArea
+            anchors.fill: parent
+            property int prevX: 0
+            property int prevY: 0
+            z: 1
+            onPressed: {
+                pathPolyline.path = [];
+                prevX = mouseX;
+                prevY = mouseY;
+                lassoPath.startX = mouseX;
+                lassoPath.startY = mouseY;
+                pathPolyline.path.push(
+                    Qt.point(lassoPath.startX, lassoPath.startY)
+                );
+            }
+            onReleased: {
+                pathPolyline.path.push(
+                    Qt.point(lassoPath.startX, lassoPath.startY)
+                );
+            }
+            onPositionChanged: (mouse) => {
+                if(containsPress) {
+                    if(Math.sqrt(Math.pow(mouseX - prevX, 2) + Math.pow(mouseY - prevY, 2)) >= 4) {
+                        pathPolyline.path.push(
+                            Qt.point(mouseX, mouseY)
+                        );
+                        lassoArea.prevX = mouseX;
+                        lassoArea.prevY = mouseY;
+                    }
+                }
+            }
         }
     }
     Item {
