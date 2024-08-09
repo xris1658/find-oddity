@@ -40,6 +40,7 @@ Item {
                 id: lassoShapeArea
                 anchors.fill: parent
                 hoverEnabled: true
+                acceptedButtons: Qt.NoButton
             }
         }
 
