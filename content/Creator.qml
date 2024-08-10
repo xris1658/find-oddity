@@ -13,6 +13,12 @@ Item {
 
     property alias stageModel: itemList.model
 
+    QtObject {
+        id: impl
+        property ShapePath editingShapePath
+        property PathPolyline editingPathPolyline
+    }
+
     Item {
         id: imagePlaceholder
         Rectangle {
@@ -29,26 +35,26 @@ Item {
             property int prevX: 0
             property int prevY: 0
             z: 1
-            enabled: false
+            enabled: itemList.currentIndex != -1
             onPressed: {
-                pathPolyline.path = [];
+                impl.editingPathPolyline.path = [];
                 prevX = mouseX;
                 prevY = mouseY;
-                lassoPath.startX = mouseX;
-                lassoPath.startY = mouseY;
-                pathPolyline.path.push(
-                    Qt.point(lassoPath.startX, lassoPath.startY)
+                impl.editingShapePath.startX = mouseX;
+                impl.editingShapePath.startY = mouseY;
+                impl.editingPathPolyline.path.push(
+                    Qt.point(impl.editingShapePath.startX, impl.editingShapePath.startY)
                 );
             }
             onReleased: {
-                pathPolyline.path.push(
-                    Qt.point(lassoPath.startX, lassoPath.startY)
+                impl.editingPathPolyline.path.push(
+                    Qt.point(impl.editingShapePath.startX, impl.editingShapePath.startY)
                 );
             }
             onPositionChanged: (mouse) => {
                 if(containsPress) {
                     if(Math.sqrt(Math.pow(mouseX - prevX, 2) + Math.pow(mouseY - prevY, 2)) >= 4) {
-                        pathPolyline.path.push(
+                        impl.editingPathPolyline.path.push(
                             Qt.point(mouseX, mouseY)
                         );
                         lassoArea.prevX = mouseX;
@@ -69,102 +75,111 @@ Item {
                 id: itemList
                 Layout.preferredWidth: itemListPlaceholder.width
                 Layout.fillHeight: true
-                delegate: Row {
-                    id: itemRow
-                    ItemDelegate {
-                        id: moveHandle
-                        width: height
+                highlightFollowsCurrentItem: true
+                delegate: ItemDelegate {
+                    id: itemDelegate
+                    width: itemList.width
+                    leftPadding: height
+                    rightPadding: options.width + 5 + options.anchors.rightMargin
+                    text: sm_description.length !== 0? sm_description: "(无描述)"
+                    highlighted: itemList.currentIndex == index
+                    onHighlightedChanged: {
+                        impl.editingShapePath = lassoPath;
+                        impl.editingPathPolyline = pathPolyline;
+                    }
+                    Label {
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        leftPadding: 5
+                        width: parent.leftPadding
                         text: index + 1
                     }
-                    ItemDelegate {
-                        width: itemList.width - moveHandle.width
-                        height: moveHandle.height
-                        rightPadding: options.width + 5 + options.anchors.rightMargin
-                        text: sm_description.length !== 0? sm_description: "无描述"
-                        Row {
-                            id: options
-                            z: 1
-                            visible: true
-                            anchors.right: parent.right
-                            anchors.rightMargin: 3
-                            anchors.verticalCenter: parent.verticalCenter
-                            spacing: 3
-                            Button {
-                                text: "编辑描述"
-                                onClicked: {
-                                    editRow.visible = true;
-                                    textField.text = sm_description;
-                                    textField.selectAll();
-                                    textField.forceActiveFocus();
-                                }
-                            }
-                            Button {
-                                text: "移除"
-                                onClicked: {
-                                    itemList.model.removeRows(index, 1);
-                                }
+                    Row {
+                        id: options
+                        z: 1
+                        visible: true
+                        anchors.right: parent.right
+                        anchors.rightMargin: 3
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 3
+                        Button {
+                            text: "编辑描述"
+                            onClicked: {
+                                editRow.visible = true;
+                                textField.text = sm_description;
+                                textField.selectAll();
+                                textField.forceActiveFocus();
                             }
                         }
-                        Row {
-                            id: editRow
-                            z: 2
-                            visible: false
-                            anchors.right: parent.right
-                            anchors.rightMargin: 3
-                            anchors.verticalCenter: parent.verticalCenter
-                            spacing: 3
-                            TextField {
-                                id: textField
-                                width: options.parent.width - editOkButton.width - editCancelButton.width - editRow.spacing * 4
-                                enabled: editRow.visible
-                                onAccepted: {
-                                    editRow.visible = false;
-                                    options.visible = true;
-                                    sm_description = textField.text;
-                                }
-                            }
-                            Button {
-                                id: editOkButton
-                                enabled: editRow.visible
-                                text: "确定"
-                                onClicked: {
-                                    textField.accepted();
-                                }
-                            }
-                            Button {
-                                id: editCancelButton
-                                enabled: editRow.visible
-                                text: "取消"
-                                onClicked: {
-                                    editRow.visible = false;
-                                    options.visible = true;
-                                }
+                        Button {
+                            text: "移除"
+                            onClicked: {
+                                itemList.model.removeRows(index, 1);
                             }
                         }
-                        Shape {
-                            visible: false
-                            containsMode: Shape.FillContains
-                            parent: imagePlaceholder
+                    }
+                    Row {
+                        id: editRow
+                        z: 2
+                        visible: false
+                        anchors.right: parent.right
+                        anchors.rightMargin: 3
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 3
+                        TextField {
+                            id: textField
+                            width: options.parent.width - editOkButton.width - editCancelButton.width - editRow.spacing * 4
+                            enabled: editRow.visible
+                            onAccepted: {
+                                editRow.visible = false;
+                                options.visible = true;
+                                sm_description = textField.text;
+                            }
+                        }
+                        Button {
+                            id: editOkButton
+                            enabled: editRow.visible
+                            text: "确定"
+                            onClicked: {
+                                textField.accepted();
+                            }
+                        }
+                        Button {
+                            id: editCancelButton
+                            enabled: editRow.visible
+                            text: "取消"
+                            onClicked: {
+                                editRow.visible = false;
+                                options.visible = true;
+                            }
+                        }
+                    }
+                    Shape {
+                        visible: itemList.currentIndex == index
+                        containsMode: Shape.FillContains
+                        parent: imagePlaceholder
+                        anchors.fill: parent
+                        clip: true
+                        ShapePath {
+                            id: lassoPath
+                            strokeColor: "#FF0000"
+                            strokeWidth: 2
+                            startX: 0
+                            startY: 0
+                            fillColor: lassoShapeArea.containsMouse? "#808080": "transparent"
+                            PathPolyline {
+                                id: pathPolyline
+                            }
+                        }
+                        MouseArea {
+                            id: lassoShapeArea
                             anchors.fill: parent
-                            clip: true
-                            ShapePath {
-                                id: lassoPath
-                                strokeColor: "#FF0000"
-                                strokeWidth: 2
-                                startX: 0
-                                startY: 0
-                                fillColor: lassoShapeArea.containsMouse? "#808080": "transparent"
-                                PathPolyline {
-                                    id: pathPolyline
-                                }
-                            }
-                            MouseArea {
-                                id: lassoShapeArea
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                acceptedButtons: Qt.NoButton
-                            }
+                            hoverEnabled: true
+                            acceptedButtons: Qt.NoButton
                         }
+                    }
+                    onClicked: {
+                        itemList.currentIndex = index;
                     }
                 }
                 Rectangle {
@@ -184,7 +199,9 @@ Item {
                     id: addPathButton
                     text: "添加路径..."
                     onClicked: {
-                        itemList.model.insertRows(itemList.count, 1);
+                        let count = itemList.count;
+                        itemList.model.insertRows(count, 1);
+                        itemList.currentIndex = count;
                     }
                 }
             }
