@@ -76,6 +76,7 @@ Item {
                 Layout.preferredWidth: itemListPlaceholder.width
                 Layout.fillHeight: true
                 highlightFollowsCurrentItem: true
+                clip: true
                 delegate: ItemDelegate {
                     id: itemDelegate
                     width: itemList.width
@@ -84,8 +85,10 @@ Item {
                     text: sm_description.length !== 0? sm_description: "(无描述)"
                     highlighted: itemList.currentIndex == index
                     onHighlightedChanged: {
-                        impl.editingShapePath = lassoPath;
-                        impl.editingPathPolyline = pathPolyline;
+                        if(highlighted) {
+                            impl.editingShapePath = lassoPath;
+                            impl.editingPathPolyline = pathPolyline;
+                        }
                     }
                     Label {
                         anchors.left: parent.left
@@ -128,7 +131,7 @@ Item {
                         spacing: 3
                         TextField {
                             id: textField
-                            width: options.parent.width - editOkButton.width - editCancelButton.width - editRow.spacing * 4
+                            width: options.parent.width - editOkButton.width - editCancelButton.width - editRow.spacing * 3 - itemDelegate.leftPadding
                             enabled: editRow.visible
                             onAccepted: {
                                 editRow.visible = false;
