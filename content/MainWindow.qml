@@ -3,6 +3,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Shapes
 
+import FindOddity.Models
+
 Window {
     id: root
     width: 1280
@@ -15,5 +17,6 @@ Window {
         id: creator
         anchors.fill: parent
         anchors.margins: 20
+        stageModel: StageModel {}
     }
 }

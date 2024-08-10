@@ -12,8 +12,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
 find_package(Qt6 6.5 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
 
+include_directories(
+    ${PROJECT_SOURCE_DIR}/content
+    ${PROJECT_SOURCE_DIR}/src
+)
+
 add_subdirectory(content)
 
-qt_add_executable(FindOddity src/main.cpp)
+qt_add_executable(FindOddity
+    src/model/StageModel.cpp
+    src/model/ModelInitializer.hpp
+    src/model/ModelInitializer.cpp
+    src/main.cpp)
 
 target_link_libraries(FindOddity PRIVATE content Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick)

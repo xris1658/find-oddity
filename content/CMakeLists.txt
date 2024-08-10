@@ -8,5 +8,7 @@ qt_add_qml_module(content
                   Creator.qml
                   MainWindow.qml
                   Player.qml
+                  SOURCES
+                  model/StageModel.hpp
                   RESOURCES
                   qmldir)

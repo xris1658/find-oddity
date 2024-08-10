@@ -10,6 +10,9 @@ Item {
     id: root
     property int minimumWidth: 360
     property int minimumHeight: 480
+
+    property alias stageModel: itemList.model
+
     Item {
         id: imagePlaceholder
         Rectangle {
@@ -19,30 +22,6 @@ Item {
             color: "transparent"
             border.color: "#808080"
         }
-        Shape {
-            z: 2
-            containsMode: Shape.FillContains
-            anchors.fill: parent
-            clip: true
-            visible: pathPolyline.path.length !== 0
-            ShapePath {
-                id: lassoPath
-                strokeColor: "#FF0000"
-                strokeWidth: 2
-                startX: 0
-                startY: 0
-                fillColor: lassoShapeArea.containsMouse? "#808080": "transparent"
-                PathPolyline {
-                    id: pathPolyline
-                }
-            }
-            MouseArea {
-                id: lassoShapeArea
-                anchors.fill: parent
-                hoverEnabled: true
-                acceptedButtons: Qt.NoButton
-            }
-        }
 
         MouseArea {
             id: lassoArea
@@ -50,6 +29,7 @@ Item {
             property int prevX: 0
             property int prevY: 0
             z: 1
+            enabled: false
             onPressed: {
                 pathPolyline.path = [];
                 prevX = mouseX;
@@ -89,17 +69,8 @@ Item {
                 id: itemList
                 Layout.preferredWidth: itemListPlaceholder.width
                 Layout.fillHeight: true
-                model: ListModel {
-                    ListElement {
-                        desc: "操作高压电时无保护措施"
-                    }
-                    ListElement {
-                        desc: "未戴安全帽"
-                    }
-                }
                 delegate: Row {
-                    required property int index
-                    required property string desc
+                    id: itemRow
                     ItemDelegate {
                         id: moveHandle
                         width: height
@@ -109,18 +80,89 @@ Item {
                         width: itemList.width - moveHandle.width
                         height: moveHandle.height
                         rightPadding: options.width + 5 + options.anchors.rightMargin
-                        text: desc
+                        text: sm_description.length !== 0? sm_description: "无描述"
                         Row {
                             id: options
+                            z: 1
+                            visible: true
                             anchors.right: parent.right
                             anchors.rightMargin: 3
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 3
                             Button {
                                 text: "编辑描述"
+                                onClicked: {
+                                    editRow.visible = true;
+                                    textField.text = sm_description;
+                                    textField.selectAll();
+                                    textField.forceActiveFocus();
+                                }
                             }
                             Button {
                                 text: "移除"
+                                onClicked: {
+                                    itemList.model.removeRows(index, 1);
+                                }
+                            }
+                        }
+                        Row {
+                            id: editRow
+                            z: 2
+                            visible: false
+                            anchors.right: parent.right
+                            anchors.rightMargin: 3
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 3
+                            TextField {
+                                id: textField
+                                width: options.parent.width - editOkButton.width - editCancelButton.width - editRow.spacing * 4
+                                enabled: editRow.visible
+                                onAccepted: {
+                                    editRow.visible = false;
+                                    options.visible = true;
+                                    sm_description = textField.text;
+                                }
+                            }
+                            Button {
+                                id: editOkButton
+                                enabled: editRow.visible
+                                text: "确定"
+                                onClicked: {
+                                    textField.accepted();
+                                }
+                            }
+                            Button {
+                                id: editCancelButton
+                                enabled: editRow.visible
+                                text: "取消"
+                                onClicked: {
+                                    editRow.visible = false;
+                                    options.visible = true;
+                                }
+                            }
+                        }
+                        Shape {
+                            visible: false
+                            containsMode: Shape.FillContains
+                            parent: imagePlaceholder
+                            anchors.fill: parent
+                            clip: true
+                            ShapePath {
+                                id: lassoPath
+                                strokeColor: "#FF0000"
+                                strokeWidth: 2
+                                startX: 0
+                                startY: 0
+                                fillColor: lassoShapeArea.containsMouse? "#808080": "transparent"
+                                PathPolyline {
+                                    id: pathPolyline
+                                }
+                            }
+                            MouseArea {
+                                id: lassoShapeArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                acceptedButtons: Qt.NoButton
                             }
                         }
                     }
@@ -141,9 +183,11 @@ Item {
                 Button {
                     id: addPathButton
                     text: "添加路径..."
+                    onClicked: {
+                        itemList.model.insertRows(itemList.count, 1);
+                    }
                 }
             }
-
         }
     }
     ColumnLayout {

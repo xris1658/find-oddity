@@ -1,0 +1,9 @@
+#ifndef FIND_ODDITY_SRC_MODEL_MODELINITIALIZER
+#define FIND_ODDITY_SRC_MODEL_MODELINITIALIZER
+
+namespace FindOddity::Model
+{
+void registerModels();
+}
+
+#endif // FIND_ODDITY_SRC_MODEL_MODELINITIALIZER
