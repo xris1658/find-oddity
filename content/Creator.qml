@@ -77,6 +77,7 @@ Item {
                 Layout.fillHeight: true
                 highlightFollowsCurrentItem: true
                 clip: true
+                property int footerHeight: 50
                 delegate: ItemDelegate {
                     id: itemDelegate
                     width: itemList.width
@@ -185,10 +186,26 @@ Item {
                         itemList.currentIndex = index;
                     }
                 }
+                footer: Item {
+                    width: parent.width
+                    height: itemList.footerHeight
+                }
                 Rectangle {
                     anchors.fill: parent
                     color: "transparent"
                     border.color: "#808080"
+                }
+                MouseArea {
+                    width: parent.width
+                    anchors.top: itemList.contentItem.bottom
+                    anchors.topMargin: -1 * itemList.footerHeight
+                    anchors.bottom: parent.bottom
+                    acceptedButtons: Qt.LeftButton
+                    onClicked: {
+                        itemList.currentIndex = -1;
+                        impl.editingShapePath = null;
+                        impl.editingPathPolyline = null;
+                    }
                 }
             }
             Row {
