@@ -18,11 +18,13 @@ Item {
         id: impl
         property ShapePath editingShapePath
         property PathPolyline editingPathPolyline
+        property int lassoAreaInitialSize
     }
 
     Item {
-        id: imagePlaceholder
+        id: imagePlaceholderArea
         Rectangle {
+            id: imagePlaceholder
             anchors.centerIn: parent
             width: Math.min(parent.width, parent.height)
             height: width
@@ -47,8 +49,8 @@ Item {
                 impl.editingPathPolyline.path = [];
                 prevX = mouseX;
                 prevY = mouseY;
-                impl.editingShapePath.startX = mouseX;
-                impl.editingShapePath.startY = mouseY;
+                impl.editingShapePath.startX = mouseX / imagePlaceholder.width;
+                impl.editingShapePath.startY = mouseY / imagePlaceholder.height;
                 impl.editingPathPolyline.path.push(
                     Qt.point(impl.editingShapePath.startX, impl.editingShapePath.startY)
                 );
@@ -62,7 +64,7 @@ Item {
                 if(containsPress) {
                     if(Math.sqrt(Math.pow(mouseX - prevX, 2) + Math.pow(mouseY - prevY, 2)) >= 4) {
                         impl.editingPathPolyline.path.push(
-                            Qt.point(mouseX, mouseY)
+                            Qt.point(mouseX / imagePlaceholder.width, mouseY / imagePlaceholder.width)
                         );
                         lassoArea.prevX = mouseX;
                         lassoArea.prevY = mouseY;
@@ -92,6 +94,7 @@ Item {
                     rightPadding: options.width + 5 + options.anchors.rightMargin
                     text: sm_description.length !== 0? sm_description: "(无描述)"
                     highlighted: itemList.currentIndex == index
+                    property Shape lassoShape: lassoShape
                     onHighlightedChanged: {
                         if(highlighted) {
                             impl.editingShapePath = lassoPath;
@@ -166,17 +169,21 @@ Item {
                         }
                     }
                     Shape {
+                        id: lassoShape
                         visible: itemList.currentIndex == index
                         containsMode: Shape.FillContains
                         parent: imagePlaceholder
                         anchors.fill: parent
                         clip: true
+                        property double initialSize: 1.0
                         ShapePath {
                             id: lassoPath
                             strokeColor: "#FF0000"
                             strokeWidth: 2
                             startX: 0
                             startY: 0
+                            property double scaleFactor: lassoShape.width
+                            scale: Qt.size(scaleFactor, scaleFactor)
                             fillColor: lassoShapeArea.containsMouse? "#80808080": "transparent"
                             PathPolyline {
                                 id: pathPolyline
@@ -208,6 +215,7 @@ Item {
                     anchors.topMargin: -1 * itemList.footerHeight
                     anchors.bottom: parent.bottom
                     acceptedButtons: Qt.LeftButton
+                    property double initialSize: 1.0
                     onClicked: {
                         itemList.currentIndex = -1;
                         impl.editingShapePath = null;
@@ -237,6 +245,7 @@ Item {
                     id: addPathButton
                     text: "添加路径"
                     onClicked: {
+                        impl.lassoAreaInitialSize = imagePlaceholder.width;
                         let count = itemList.count;
                         itemList.model.insertRows(count, 1);
                         itemList.currentIndex = count;
@@ -251,7 +260,7 @@ Item {
         visible: width <= height + itemListPlaceholder.minimumWidth
         spacing: 10
         LayoutItemProxy {
-            target: imagePlaceholder
+            target: imagePlaceholderArea
             Layout.preferredWidth: root.width
             Layout.minimumHeight: Math.min(root.width, columnLayout.height - columnLayout.spacing - itemListPlaceholder.minimumHeight)
         }
@@ -267,7 +276,7 @@ Item {
         visible: !columnLayout.visible
         spacing: 10
         LayoutItemProxy {
-            target: imagePlaceholder
+            target: imagePlaceholderArea
             Layout.minimumWidth: height
             Layout.preferredHeight: root.height
         }
