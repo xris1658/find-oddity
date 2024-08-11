@@ -3,6 +3,7 @@ import QtQuick
 import QtQml.Models
 
 import QtQuick.Controls.Fusion
+import QtQuick.Dialogs
 import QtQuick.Layouts
 import QtQuick.Shapes
 
@@ -27,8 +28,14 @@ Item {
             height: width
             color: "transparent"
             border.color: "#808080"
+            Image {
+                id: image
+                anchors.fill: parent
+                anchors.margins: parent.border.width
+                fillMode: Image.PreserveAspectCrop
+                clip: true
+            }
         }
-
         MouseArea {
             id: lassoArea
             anchors.fill: parent
@@ -170,7 +177,7 @@ Item {
                             strokeWidth: 2
                             startX: 0
                             startY: 0
-                            fillColor: lassoShapeArea.containsMouse? "#808080": "transparent"
+                            fillColor: lassoShapeArea.containsMouse? "#80808080": "transparent"
                             PathPolyline {
                                 id: pathPolyline
                             }
@@ -214,10 +221,21 @@ Item {
                 Button {
                     id: setImageButton
                     text: "设置图片..."
+                    onClicked: {
+                        imagePicker.open();
+                    }
+
+                    FileDialog {
+                        id: imagePicker
+                        nameFilters: ["图像文件 (*.jpg *.png *.jpeg *.bmp)"]
+                        onAccepted: {
+                            image.source = imagePicker.currentFile;
+                        }
+                    }
                 }
                 Button {
                     id: addPathButton
-                    text: "添加路径..."
+                    text: "添加路径"
                     onClicked: {
                         let count = itemList.count;
                         itemList.model.insertRows(count, 1);
