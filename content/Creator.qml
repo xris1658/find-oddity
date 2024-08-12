@@ -14,6 +14,8 @@ Item {
 
     property alias stageModel: itemList.model
 
+    property FontLoader fontLoader
+
     QtObject {
         id: impl
         property ShapePath editingShapePath

@@ -11,4 +11,5 @@ qt_add_qml_module(content
                   SOURCES
                   model/StageModel.hpp
                   RESOURCES
-                  qmldir)
+                  qmldir
+                  ./font/wqy-microhei.ttc)
