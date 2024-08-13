@@ -20,6 +20,7 @@ include_directories(
 add_subdirectory(content)
 
 qt_add_executable(FindOddity
+    src/model/ProfessionModel.cpp
     src/model/StageModel.cpp
     src/model/ModelInitializer.hpp
     src/model/ModelInitializer.cpp

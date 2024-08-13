@@ -1,70 +1,60 @@
-#include "model/StageModel.hpp"
-
-#include <algorithm>
+#include "model/ProfessionModel.hpp"
 
 namespace FindOddity::Model
 {
-StageModel::StageModel(): QAbstractListModel(nullptr)
+
+ProfessionModel::ProfessionModel(): QAbstractListModel(nullptr)
 {}
 
-StageModel::StageModel(const StageModel& rhs):
-    QAbstractListModel(nullptr),
-    data_(rhs.data_)
+ProfessionModel::~ProfessionModel()
 {}
 
-StageModel::~StageModel()
-{}
-
-int StageModel::itemCount() const
+int ProfessionModel::itemCount() const
 {
     return data_.size();
 }
 
-int StageModel::rowCount(const QModelIndex& parent) const
+int ProfessionModel::rowCount(const QModelIndex& parent) const
 {
     return itemCount();
 }
 
-int StageModel::columnCount(const QModelIndex& parent) const
+int ProfessionModel::columnCount(const QModelIndex& parent) const
 {
     return columnSize();
 }
 
-QVariant StageModel::data(const QModelIndex& index, int role) const
+QVariant ProfessionModel::data(const QModelIndex& index, int role) const
 {
     if(auto row = index.row(); row >= 0 && row < itemCount())
     {
         switch(role)
         {
-        case Role::Path:
+        case Role::Name:
         {
-            return QVariant::fromValue<std::vector<QPointF>>(data_[row].first);
+            return QVariant::fromValue<QString>(data_[row].name);
         }
-        case Role::Description:
+        case Role::Stages:
         {
-            return QVariant::fromValue<QString>(data_[row].second);
+            return QVariant::fromValue<QObject*>(
+                const_cast<StageModel*>(data_[row].stageModel.get())
+            );
         }
         }
     }
     return {};
 }
 
-bool StageModel::setData(const QModelIndex& index, const QVariant& value, int role)
+bool ProfessionModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
     if(auto row = index.row(); row >= 0 && row < itemCount())
     {
         switch(role)
         {
-        case Role::Path:
+        case Role::Name:
         {
-            data_[row].first = value.value<std::vector<QPointF>>();
-            dataChanged(index, index, {Role::Path});
-            return true;
-        }
-        case Role::Description:
-        {
-            data_[row].second = value.value<QString>();
-            dataChanged(index, index, {Role::Description});
+            data_[row].name = value.value<QString>();
+            dataChanged(index, index, {Role::Name});
             return true;
         }
         }
@@ -72,17 +62,20 @@ bool StageModel::setData(const QModelIndex& index, const QVariant& value, int ro
     return false;
 }
 
-bool StageModel::insertRows(int row, int count, const QModelIndex& parent)
+bool ProfessionModel::insertRows(int row, int count, const QModelIndex& parent)
 {
     if(parent == QModelIndex()
         && row >= 0 && row <= itemCount()
         && count > 0)
     {
         beginInsertRows(parent, row, row + count - 1);
-        std::fill_n(
+        std::generate_n(
             std::inserter(data_, data_.begin() + row),
             count,
-            decltype(data_)::value_type()
+            []()
+            {
+                return Item();
+            }
         );
         endInsertRows();
         return true;
@@ -90,8 +83,7 @@ bool StageModel::insertRows(int row, int count, const QModelIndex& parent)
     return false;
 }
 
-bool StageModel::moveRows(const QModelIndex& sourceParent, int sourceRow, int count,
-    const QModelIndex& destParent, int destRow)
+bool ProfessionModel::moveRows(const QModelIndex& sourceParent, int sourceRow, int count, const QModelIndex& destParent, int destRow)
 {
     if(sourceParent == QModelIndex() && destParent == QModelIndex()
         && sourceRow >= 0 && sourceRow < itemCount()
@@ -102,12 +94,12 @@ bool StageModel::moveRows(const QModelIndex& sourceParent, int sourceRow, int co
         {
             beginMoveRows(sourceParent, sourceRow, sourceRow + count - 1,
                 destParent, destRow
-            );
+                );
             std::rotate(
                 data_.begin() + destRow,
                 data_.begin() + sourceRow,
                 data_.begin() + sourceRow + count
-            );
+                );
             endMoveRows();
             return true;
         }
@@ -115,12 +107,12 @@ bool StageModel::moveRows(const QModelIndex& sourceParent, int sourceRow, int co
         {
             beginMoveRows(sourceParent, sourceRow, sourceRow + count - 1,
                 destParent, destRow
-            );
+                );
             std::rotate(
                 data_.begin() + sourceRow,
                 data_.begin() + sourceRow + count,
                 data_.begin() + destRow + 1
-            );
+                );
             endMoveRows();
             return true;
         }
@@ -128,7 +120,7 @@ bool StageModel::moveRows(const QModelIndex& sourceParent, int sourceRow, int co
     return false;
 }
 
-bool StageModel::removeRows(int row, int count, const QModelIndex& parent)
+bool ProfessionModel::removeRows(int row, int count, const QModelIndex& parent)
 {
     if(parent == QModelIndex()
         && row >= 0 && row < itemCount()
@@ -142,11 +134,11 @@ bool StageModel::removeRows(int row, int count, const QModelIndex& parent)
     return false;
 }
 
-QHash<int, QByteArray> StageModel::roleNames() const
+QHash<int, QByteArray> ProfessionModel::roleNames() const
 {
     return {
-        std::make_pair(Role::Path, "sm_path"),
-        std::make_pair(Role::Description, "sm_description")
+        std::make_pair(Role::Name, "pm_name"),
+        std::make_pair(Role::Stages, "pm_stage_model")
     };
 }
 }
