@@ -12,7 +12,7 @@ Item {
     property int minimumWidth: 360
     property int minimumHeight: 480
 
-    property alias stageModel: itemList.model
+    property alias model: itemList.model
 
     property FontLoader fontLoader
 
@@ -94,7 +94,7 @@ Item {
                     width: itemList.width
                     leftPadding: height
                     rightPadding: options.width + 5 + options.anchors.rightMargin
-                    text: sm_description.length !== 0? sm_description: "(无描述)"
+                    text: im_description.length !== 0? im_description: "(无描述)"
                     highlighted: itemList.currentIndex == index
                     property Shape lassoShape: lassoShape
                     onHighlightedChanged: {
@@ -122,7 +122,7 @@ Item {
                             text: "编辑描述"
                             onClicked: {
                                 editRow.visible = true;
-                                textField.text = sm_description;
+                                textField.text = im_description;
                                 textField.selectAll();
                                 textField.forceActiveFocus();
                             }
@@ -149,7 +149,7 @@ Item {
                             onAccepted: {
                                 editRow.visible = false;
                                 options.visible = true;
-                                sm_description = textField.text;
+                                im_description = textField.text;
                             }
                         }
                         Button {

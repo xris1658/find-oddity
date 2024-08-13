@@ -1,35 +1,28 @@
-#ifndef FINDODDITY_CONTENT_MODEL_STAGEMODEL
-#define FINDODDITY_CONTENT_MODEL_STAGEMODEL
-
-#include "model/ItemModel.hpp"
+#ifndef FIND_ODDITY_MODEL_ITEMMODEL
+#define FIND_ODDITY_MODEL_ITEMMODEL
 
 #include <QAbstractListModel>
+#include <QPointF>
+#include <QString>
 
-#include <memory>
 #include <vector>
 
 namespace FindOddity::Model
 {
-class StageModel: public QAbstractListModel
+class ItemModel: public QAbstractListModel
 {
     Q_OBJECT
 public:
-    struct Item
-    {
-        QString name;
-        std::unique_ptr<ItemModel> stageModel = std::make_unique<ItemModel>();
-    };
-public:
     enum Role
     {
-        Name = Qt::UserRole,
-        Image,
-        Items,
+        Path = Qt::UserRole,
+        Description,
         RoleCount
     };
 public:
-    StageModel();
-    ~StageModel() override;
+    ItemModel();
+    ItemModel(const ItemModel& rhs);
+    ~ItemModel() override;
 public:
     static constexpr int columnSize() { return 1; }
     int itemCount() const;
@@ -44,8 +37,10 @@ public:
 protected:
     QHash<int, QByteArray> roleNames() const override;
 private:
-    std::vector<Item> data_;
+    std::vector<std::pair<std::vector<QPointF>, QString>> data_;
 };
 }
 
-#endif // FINDODDITY_CONTENT_MODEL_STAGEMODEL
+Q_DECLARE_METATYPE(FindOddity::Model::ItemModel)
+
+#endif // FIND_ODDITY_MODEL_ITEMMODEL

@@ -4,12 +4,8 @@
 
 namespace FindOddity::Model
 {
-StageModel::StageModel(): QAbstractListModel(nullptr)
-{}
 
-StageModel::StageModel(const StageModel& rhs):
-    QAbstractListModel(nullptr),
-    data_(rhs.data_)
+StageModel::StageModel(): QAbstractListModel(nullptr)
 {}
 
 StageModel::~StageModel()
@@ -36,13 +32,15 @@ QVariant StageModel::data(const QModelIndex& index, int role) const
     {
         switch(role)
         {
-        case Role::Path:
+        case Role::Name:
         {
-            return QVariant::fromValue<std::vector<QPointF>>(data_[row].first);
+            return QVariant::fromValue<QString>(data_[row].name);
         }
-        case Role::Description:
+        case Role::Items:
         {
-            return QVariant::fromValue<QString>(data_[row].second);
+            return QVariant::fromValue<QObject*>(
+                const_cast<ItemModel*>(data_[row].stageModel.get())
+            );
         }
         }
     }
@@ -55,16 +53,10 @@ bool StageModel::setData(const QModelIndex& index, const QVariant& value, int ro
     {
         switch(role)
         {
-        case Role::Path:
+        case Role::Name:
         {
-            data_[row].first = value.value<std::vector<QPointF>>();
-            dataChanged(index, index, {Role::Path});
-            return true;
-        }
-        case Role::Description:
-        {
-            data_[row].second = value.value<QString>();
-            dataChanged(index, index, {Role::Description});
+            data_[row].name = value.value<QString>();
+            dataChanged(index, index, {Role::Name});
             return true;
         }
         }
@@ -79,10 +71,13 @@ bool StageModel::insertRows(int row, int count, const QModelIndex& parent)
         && count > 0)
     {
         beginInsertRows(parent, row, row + count - 1);
-        std::fill_n(
+        std::generate_n(
             std::inserter(data_, data_.begin() + row),
             count,
-            decltype(data_)::value_type()
+            []()
+            {
+                return Item();
+            }
         );
         endInsertRows();
         return true;
@@ -90,8 +85,7 @@ bool StageModel::insertRows(int row, int count, const QModelIndex& parent)
     return false;
 }
 
-bool StageModel::moveRows(const QModelIndex& sourceParent, int sourceRow, int count,
-    const QModelIndex& destParent, int destRow)
+bool StageModel::moveRows(const QModelIndex& sourceParent, int sourceRow, int count, const QModelIndex& destParent, int destRow)
 {
     if(sourceParent == QModelIndex() && destParent == QModelIndex()
         && sourceRow >= 0 && sourceRow < itemCount()
@@ -102,12 +96,12 @@ bool StageModel::moveRows(const QModelIndex& sourceParent, int sourceRow, int co
         {
             beginMoveRows(sourceParent, sourceRow, sourceRow + count - 1,
                 destParent, destRow
-            );
+                );
             std::rotate(
                 data_.begin() + destRow,
                 data_.begin() + sourceRow,
                 data_.begin() + sourceRow + count
-            );
+                );
             endMoveRows();
             return true;
         }
@@ -115,12 +109,12 @@ bool StageModel::moveRows(const QModelIndex& sourceParent, int sourceRow, int co
         {
             beginMoveRows(sourceParent, sourceRow, sourceRow + count - 1,
                 destParent, destRow
-            );
+                );
             std::rotate(
                 data_.begin() + sourceRow,
                 data_.begin() + sourceRow + count,
                 data_.begin() + destRow + 1
-            );
+                );
             endMoveRows();
             return true;
         }
@@ -145,8 +139,8 @@ bool StageModel::removeRows(int row, int count, const QModelIndex& parent)
 QHash<int, QByteArray> StageModel::roleNames() const
 {
     return {
-        std::make_pair(Role::Path, "sm_path"),
-        std::make_pair(Role::Description, "sm_description")
+        std::make_pair(Role::Name, "sm_name"),
+        std::make_pair(Role::Items, "sm_items")
     };
 }
 }

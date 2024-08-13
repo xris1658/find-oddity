@@ -28,10 +28,11 @@ qt_add_executable(FindOddity
     src/dao/AppDatabase.hpp
     src/dao/Path.cpp
     src/dao/Path.hpp
-    src/model/ProfessionModel.cpp
-    src/model/StageModel.cpp
+    src/model/ItemModel.cpp
     src/model/ModelInitializer.hpp
     src/model/ModelInitializer.cpp
+    src/model/ProfessionModel.cpp
+    src/model/StageModel.cpp
     src/main.cpp
 )
 

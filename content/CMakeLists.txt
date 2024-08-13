@@ -8,8 +8,10 @@ qt_add_qml_module(content
                   Creator.qml
                   MainWindow.qml
                   Player.qml
+                  ProfessionList.qml
                   StageList.qml
                   SOURCES
+                  model/ItemModel.hpp
                   model/ProfessionModel.hpp
                   model/StageModel.hpp
                   RESOURCES

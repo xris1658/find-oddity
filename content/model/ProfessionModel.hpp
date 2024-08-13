@@ -4,6 +4,7 @@
 #include "model/StageModel.hpp"
 
 #include <QAbstractListModel>
+#include <QtGui/QColor>
 
 #include <memory>
 #include <vector>
@@ -17,13 +18,14 @@ public:
     struct Item
     {
         QString name;
+        QColor color;
         std::unique_ptr<StageModel> stageModel = std::make_unique<StageModel>();
     };
 public:
     enum Role
     {
         Name = Qt::UserRole,
-        Image,
+        Color,
         Stages,
         RoleCount
     };

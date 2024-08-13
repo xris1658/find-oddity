@@ -7,10 +7,8 @@ Item {
     id: root
     property alias model: itemList.model
     property string currentName
-    property var currentItemList: null
-    signal itemSelected()
-
-    property FontLoader fontLoader
+    property var currentStageList: null
+    signal stageSelected()
 
     ColumnLayout {
         anchors.fill: parent
@@ -22,21 +20,14 @@ Item {
             clip: true
             Label {
                 anchors.centerIn: parent
-                text: "无关卡"
+                text: "无工种"
                 color: "#FFFFFF"
                 visible: itemList.count == 0
             }
             delegate: ItemDelegate {
                 id: itemDelegate
                 width: itemList.width
-                text: sm_name.length !== 0? sm_name: "关卡 %1".arg(index + 1)
-                Label {
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    leftPadding: 5
-                    width: parent.leftPadding
-                    text: index + 1
-                }
+                text: pm_name.length !== 0? pm_name: "工种 %1".arg(index + 1)
                 Row {
                     id: options
                     z: 1
@@ -49,7 +40,7 @@ Item {
                         text: "修改名称"
                         onClicked: {
                             editRow.visible = true;
-                            textField.text = sm_name;
+                            textField.text = pm_name;
                             textField.selectAll();
                             textField.forceActiveFocus();
                         }
@@ -76,7 +67,7 @@ Item {
                         onAccepted: {
                             editRow.visible = false;
                             options.visible = true;
-                            sm_name = textField.text;
+                            pm_name = textField.text;
                         }
                     }
                     Button {
@@ -98,9 +89,9 @@ Item {
                     }
                 }
                 onClicked: {
-                    root.currentItemList = sm_items;
+                    root.currentStageList = pm_stages;
                     root.currentName = text;
-                    root.itemSelected();
+                    root.stageSelected();
                 }
             }
         }
@@ -109,7 +100,7 @@ Item {
             spacing: 10
             Button {
                 id: addItemButton
-                text: "添加关卡"
+                text: "添加工种"
                 onClicked: {
                     let count = itemList.count;
                     itemList.model.insertRows(count, 1);
