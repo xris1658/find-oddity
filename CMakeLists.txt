@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
 find_package(Qt6 6.5 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/sqlite3 ${PROJECT_BINARY_DIR}/sqlite3)
+add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/sqlite3)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/content
