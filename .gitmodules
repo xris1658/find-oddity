@@ -1,0 +1,3 @@
+[submodule "third-party/sqlite_modern_cpp"]
+	path = third-party/sqlite_modern_cpp
+	url = https://githubfast.com/aminroosta/sqlite_modern_cpp
