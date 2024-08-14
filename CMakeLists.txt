@@ -12,20 +12,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
 find_package(Qt6 6.5 COMPONENTS Core Gui Qml Quick QuickTemplates2 LinguistTools REQUIRED)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/third-party/sqlite3)
+add_subdirectory(third-party/rapidyaml)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/content
     ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/third-party/sqlite3
-    ${PROJECT_SOURCE_DIR}/third-party/sqlite_modern_cpp/hdr
+    ${PROJECT_SOURCE_DIR}/third-party/rapidyaml/src
 )
+
+if(MSVC)
+    add_compile_definitions(C4_MSVC)
+elseif(MINGW)
+    add_compile_definitions(C4_MINGW)
+endif()
 
 add_subdirectory(content)
 
 qt_add_executable(FindOddity
-    src/dao/AppDatabase.cpp
-    src/dao/AppDatabase.hpp
+
+
     src/dao/Path.cpp
     src/dao/Path.hpp
     src/model/ItemModel.cpp
@@ -36,4 +41,4 @@ qt_add_executable(FindOddity
     src/main.cpp
 )
 
-target_link_libraries(FindOddity PRIVATE sqlite3 content Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick)
+target_link_libraries(FindOddity PRIVATE content ryml::ryml Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick)

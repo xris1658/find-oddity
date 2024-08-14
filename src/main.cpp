@@ -1,4 +1,3 @@
-#include "dao/AppDatabase.hpp"
 #include "model/ModelInitializer.hpp"
 #include "model/ProfessionModel.hpp"
 
@@ -32,6 +31,5 @@ int main(int argc, char** argv)
         "professionModel",
         QVariant::fromValue<QObject*>(&professionModel)
     );
-    // auto& database = FindOddity::DAO::appDatabase();
     return application.exec();
 }
