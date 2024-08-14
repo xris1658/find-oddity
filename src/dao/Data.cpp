@@ -84,6 +84,7 @@ void loadAppData(FindOddity::Model::ProfessionModel& model)
         file.open(QIODevice::OpenModeFlag::ReadOnly | QIODevice::OpenModeFlag::Text);
         QTextStream stream(&file);
         auto content = stream.readAll().toUtf8();
+        file.close();
         auto tree = ryml::parse_in_place(content.data());
 
         if(auto root = tree.rootref(); root.has_child("professions"))
@@ -127,13 +128,13 @@ void loadAppData(FindOddity::Model::ProfessionModel& model)
                             stageModel.insertRow(newStageIndex);
                             stageModel.setData(
                                 stageModel.index(newStageIndex),
-                                QVariant::fromValue<QString>(QString::fromStdString(name)),
+                                QVariant::fromValue<QString>(QString::fromStdString(stageName)),
                                 Model::StageModel::Role::Name
                             );
                             stageModel.setData(
                                 stageModel.index(newStageIndex),
                                 QVariant::fromValue<QUrl>(QUrl(QString::fromStdString(imageUrl))),
-                                Model::StageModel::Role::Name
+                                Model::StageModel::Role::Image
                             );
                             auto& itemModel = *static_cast<Model::ItemModel*>(
                                 stageModel.data(
@@ -181,6 +182,12 @@ void loadAppData(FindOddity::Model::ProfessionModel& model)
                 }
             }
         }
+    }
+    else
+    {
+        file.open(QIODevice::OpenModeFlag::WriteOnly | QIODevice::OpenModeFlag::Truncate);
+        file.write("professions: []");
+        file.close();
     }
 }
 
