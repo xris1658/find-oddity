@@ -3,6 +3,7 @@
 #include "model/ProfessionModel.hpp"
 
 #include <QColor>
+#include <QDir>
 #include <QFile>
 #include <QString>
 #include <QTextStream>
