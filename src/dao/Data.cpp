@@ -85,7 +85,8 @@ void loadAppData(FindOddity::Model::ProfessionModel& model)
         QTextStream stream(&file);
         auto content = stream.readAll().toUtf8();
         auto tree = ryml::parse_in_place(content.data());
-        if(tree.rootref().has_child("professions"))
+
+        if(auto root = tree.rootref(); root.has_child("professions"))
         {
             if(auto professions = tree["professions"]; professions.is_seq())
             {
@@ -121,7 +122,7 @@ void loadAppData(FindOddity::Model::ProfessionModel& model)
                         for(const auto& stage: stages.children())
                         {
                             auto stageName = childValueOr<std::string>(stage, "name");
-                            auto imageUrl = childValueOr<std::string>(stage, "imageUrl");
+                            auto imageUrl = childValueOr<std::string>(stage, "image-url");
                             auto newStageIndex = stageModel.itemCount();
                             stageModel.insertRow(newStageIndex);
                             stageModel.setData(
@@ -185,6 +186,116 @@ void loadAppData(FindOddity::Model::ProfessionModel& model)
 
 void saveAppData(const FindOddity::Model::ProfessionModel& model)
 {
-
+    ryml::Tree tree;
+    auto root = tree.rootref();
+    root.set_type(ryml::NodeType(ryml::NodeType_e::MAP));
+    auto professionsNode = root.append_child(ryml::NodeInit(ryml::NodeType_e::SEQ));
+    professionsNode.set_key("professions");
+    auto professionCount = model.itemCount();
+    for(int i = 0; i < professionCount; ++i)
+    {
+        auto professionNode = professionsNode.append_child(
+            ryml::NodeInit(ryml::NodeType_e::MAP)
+        );
+        {
+            auto professionName = model.data(
+               model.index(i),
+               Model::ProfessionModel::Role::Name
+           ).value<QString>().toUtf8();
+            professionNode["name"] << professionName.constData();
+        }
+        {
+            auto color = model.data(
+               model.index(i),
+               Model::ProfessionModel::Role::Color
+            ).value<QColor>().name(QColor::NameFormat::HexRgb).toStdString();
+            professionNode["color"] << color.c_str();
+        }
+        auto stagesNode = professionNode.append_child(
+            ryml::NodeInit(ryml::NodeType_e::SEQ)
+        );
+        stagesNode.set_key("stages");
+        const auto& stageModel = *static_cast<const Model::StageModel*>(
+            model.data(
+                model.index(i),
+                Model::ProfessionModel::Role::Stages
+            ).value<QObject*>()
+        );
+        auto stageCount = stageModel.itemCount();
+        for(int j = 0; j < stageCount; ++j)
+        {
+            auto stageNode = stagesNode.append_child(
+                ryml::NodeInit(ryml::NodeType_e::MAP)
+            );
+            // "name", "image-url"
+            {
+                auto stageName = stageModel.data(
+                    stageModel.index(j),
+                    Model::StageModel::Role::Name
+                ).value<QString>().toUtf8();
+                stageNode["name"] << stageName.constData();
+            }
+            {
+                auto imageUrl = stageModel.data(
+                    stageModel.index(j),
+                    Model::StageModel::Role::Image
+                ).value<QUrl>().toString().toUtf8();
+                stageNode["image-url"] << imageUrl.constData();
+            }
+            auto itemsNode = stageNode.append_child(
+                ryml::NodeInit(ryml::NodeType_e::SEQ)
+            );
+            itemsNode.set_key("items");
+            const auto &itemModel = *static_cast<const Model::ItemModel*>(
+                stageModel.data(
+                    stageModel.index(j),
+                    Model::StageModel::Role::Items
+                ).value<QObject*>()
+            );
+            auto itemCount = itemModel.itemCount();
+            for(int k = 0; k < itemCount; ++k)
+            {
+                auto itemNode = itemsNode.append_child(
+                    ryml::NodeInit(ryml::NodeType_e::MAP)
+                );
+                {
+                    auto desc = itemModel.data(
+                        itemModel.index(k),
+                        Model::ItemModel::Role::Description
+                    ).value<QString>().toUtf8();
+                    itemNode["desc"] << desc.constData();
+                }
+                auto pointsNode = itemNode.append_child(
+                    ryml::NodeInit(ryml::NodeType_e::SEQ)
+                );
+                pointsNode.set_key("points");
+                const auto& points = itemModel.data(
+                    itemModel.index(k),
+                    Model::ItemModel::Role::Description
+                ).value<std::vector<QPointF>>();
+                for(auto& point: points)
+                {
+                    auto pointNode = pointsNode.append_child(
+                        ryml::NodeInit(ryml::NodeType_e::MAP)
+                    );
+                    pointNode["x"] << point.x();
+                    pointNode["y"] << point.y();
+                }
+            }
+        }
+    }
+    QFile file(appDataFilePath());
+    file.open(QIODevice::OpenModeFlag::WriteOnly | QIODevice::OpenModeFlag::Truncate);
+    std::vector<char> buffer(1024);
+    ryml::substr substr(buffer.data(), buffer.size());
+    auto substr1 = ryml::emit_yaml(tree, substr, false);
+    if(!substr1.data())
+    {
+        buffer.resize(substr1.len);
+        substr = {buffer.data(), buffer.size()};
+        substr1 = ryml::emit_yaml(tree, substr, false);
+    }
+    file.write(substr1.data(), substr1.size());
+    file.close();
 }
 }
