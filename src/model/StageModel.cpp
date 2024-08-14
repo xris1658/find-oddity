@@ -36,6 +36,10 @@ QVariant StageModel::data(const QModelIndex& index, int role) const
         {
             return QVariant::fromValue<QString>(data_[row].name);
         }
+        case Role::Image:
+        {
+            return QVariant::fromValue<QUrl>(data_[row].imageUrl);
+        }
         case Role::Items:
         {
             return QVariant::fromValue<QObject*>(
@@ -57,6 +61,12 @@ bool StageModel::setData(const QModelIndex& index, const QVariant& value, int ro
         {
             data_[row].name = value.value<QString>();
             dataChanged(index, index, {Role::Name});
+            return true;
+        }
+        case Role::Image:
+        {
+            data_[row].imageUrl = value.value<QUrl>();
+            dataChanged(index, index, {Role::Image});
             return true;
         }
         }
@@ -140,6 +150,7 @@ QHash<int, QByteArray> StageModel::roleNames() const
 {
     return {
         std::make_pair(Role::Name, "sm_name"),
+        std::make_pair(Role::Image, "sm_image"),
         std::make_pair(Role::Items, "sm_items")
     };
 }

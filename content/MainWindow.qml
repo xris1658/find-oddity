@@ -62,6 +62,13 @@ Window {
                 creator.model = currentItemList;
                 stageListPlaceholder.visible = false;
                 creatorPlaceholder.visible = true;
+                creator.imageUrl = currentImageUrl;
+            }
+            Connections {
+                target: root.currentIndex != -1? creator: null
+                function onImageUrlChanged() {
+                    stageList.currentImageUrl = creator.imageUrl;
+                }
             }
         }
     }

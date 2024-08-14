@@ -7,6 +7,8 @@ Item {
     id: root
     property alias model: itemList.model
     property string currentName
+    property int currentIndex: -1
+    property url currentImageUrl
     property var currentItemList: null
     signal itemSelected()
 
@@ -30,6 +32,12 @@ Item {
                 id: itemDelegate
                 width: itemList.width
                 text: sm_name.length !== 0? sm_name: "关卡 %1".arg(index + 1)
+                Connections {
+                    target: root.currentIndex == index? root: null
+                    function onCurrentImageUrlChanged() {
+                        sm_image = root.currentImageUrl;
+                    }
+                }
                 Label {
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
@@ -99,7 +107,9 @@ Item {
                 }
                 onClicked: {
                     root.currentItemList = sm_items;
+                    root.currentImageUrl = sm_image;
                     root.currentName = text;
+                    root.currentIndex = index;
                     root.itemSelected();
                 }
             }

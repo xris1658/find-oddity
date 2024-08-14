@@ -4,6 +4,8 @@
 #include "model/ItemModel.hpp"
 
 #include <QAbstractListModel>
+#include <QString>
+#include <QUrl>
 
 #include <memory>
 #include <vector>
@@ -17,6 +19,7 @@ public:
     struct Item
     {
         QString name;
+        QUrl imageUrl;
         std::unique_ptr<ItemModel> stageModel = std::make_unique<ItemModel>();
     };
 public:

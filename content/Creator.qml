@@ -13,6 +13,7 @@ Item {
     property int minimumHeight: 480
 
     property alias model: itemList.model
+    property alias imageUrl: image.source
 
     property FontLoader fontLoader
 
@@ -180,7 +181,6 @@ Item {
                     }
                     Shape {
                         id: lassoShape
-                        visible: itemList.currentIndex == index
                         containsMode: Shape.FillContains
                         parent: imagePlaceholder
                         anchors.fill: parent
@@ -189,7 +189,7 @@ Item {
                         ShapePath {
                             id: lassoPath
                             strokeColor: "#FF0000"
-                            strokeWidth: 2
+                            strokeWidth: itemList.currentIndex == index? 2: 1
                             startX: 0
                             startY: 0
                             property double scaleFactor: lassoShape.width
@@ -197,6 +197,7 @@ Item {
                             fillColor: lassoShapeArea.containsMouse? "#80808080": "transparent"
                             PathPolyline {
                                 id: pathPolyline
+                                path: im_path
                             }
                         }
                         MouseArea {
