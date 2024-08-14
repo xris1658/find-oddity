@@ -20,19 +20,13 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/third-party/rapidyaml/src
 )
 
-if(MSVC)
-    add_compile_definitions(C4_MSVC)
-elseif(MINGW)
-    add_compile_definitions(C4_MINGW)
-endif()
-
 add_subdirectory(content)
 
 qt_add_executable(FindOddity
+    src/dao/Data.cpp
+    src/dao/Data.hpp
 
 
-    src/dao/Path.cpp
-    src/dao/Path.hpp
     src/model/ItemModel.cpp
     src/model/ModelInitializer.hpp
     src/model/ModelInitializer.cpp

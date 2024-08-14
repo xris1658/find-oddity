@@ -1,3 +1,4 @@
+#include "dao/Data.hpp"
 #include "model/ModelInitializer.hpp"
 #include "model/ProfessionModel.hpp"
 
@@ -27,6 +28,7 @@ int main(int argc, char** argv)
     );
     engine.load("qrc:/content/MainWindow.qml");
     FindOddity::Model::ProfessionModel professionModel;
+    FindOddity::DAO::loadAppData(professionModel);
     mainWindow->setProperty(
         "professionModel",
         QVariant::fromValue<QObject*>(&professionModel)

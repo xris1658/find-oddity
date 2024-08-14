@@ -1,0 +1,190 @@
+#include "Data.hpp"
+
+#include "model/ProfessionModel.hpp"
+
+#include <QColor>
+#include <QFile>
+#include <QString>
+#include <QTextStream>
+#include <QUrl>
+
+#undef emit
+
+#include <string>
+
+#include <c4/yml/std/std.hpp> // Node::operator>>(std::string)
+#include <ryml.hpp>
+
+#if _WIN32
+#include <windows.h>
+#include <ShlObj_core.h>
+#endif
+
+#include <mutex>
+#include <vector>
+
+namespace FindOddity::DAO
+{
+QString appDataPath()
+{
+#if _WIN32
+    wchar_t* path = nullptr;
+    SHGetKnownFolderPath(
+        FOLDERID_RoamingAppData,
+        KF_FLAG_NO_ALIAS,
+        NULL,
+        &path
+    );
+    return QString::fromWCharArray(path) + "\\FindOddity";
+#elif __linux__
+    return QString(std::getenv("HOME")) + "/.local/share/FindOddity";
+#endif
+}
+
+QString appDataFilePath()
+{
+#if _WIN32
+    return appDataPath() + "\\" + "data.yml";
+#elif __linux__
+    return appDataPath() + "/" + "data.yml";
+#endif
+}
+
+template<typename T, typename U>
+T childValueOr(const U& nodeRef, ryml::csubstr child, const T& value)
+{
+    static_assert(std::is_same_v<U, ryml::NodeRef> || std::is_same_v<U, ryml::ConstNodeRef>);
+    if(nodeRef.has_child(child))
+    {
+        T ret;
+        nodeRef[child] >> ret;
+        return ret;
+    }
+    return value;
+}
+
+template<typename T, typename U>
+T childValueOr(const U& nodeRef, ryml::csubstr child, T&& value = T())
+{
+    static_assert(std::is_same_v<U, ryml::NodeRef> || std::is_same_v<U, ryml::ConstNodeRef>);
+    if(nodeRef.has_child(child))
+    {
+        T ret;
+        nodeRef[child] >> ret;
+        return ret;
+    }
+    return std::move(value);
+}
+
+void loadAppData(FindOddity::Model::ProfessionModel& model)
+{
+    QFile file(appDataFilePath());
+    if(file.exists())
+    {
+        file.open(QIODevice::OpenModeFlag::ReadOnly | QIODevice::OpenModeFlag::Text);
+        QTextStream stream(&file);
+        auto content = stream.readAll().toUtf8();
+        auto tree = ryml::parse_in_place(content.data());
+        if(tree.rootref().has_child("professions"))
+        {
+            if(auto professions = tree["professions"]; professions.is_seq())
+            {
+                for(const auto& profession: professions.children())
+                {
+                    auto name = childValueOr<std::string>(profession, "name");
+                    auto colorString = childValueOr<std::string>(profession, "color");
+                    QColor color(0, 0, 0);
+                    if(QColor::isValidColorName(colorString.data()))
+                    {
+                        color = QColor::fromString(colorString.data());
+                    }
+                    auto newItemIndex = model.itemCount();
+                    model.insertRow(newItemIndex);
+                    model.setData(
+                        model.index(newItemIndex),
+                        QVariant::fromValue<QString>(QString::fromStdString(name)),
+                        Model::ProfessionModel::Role::Name
+                    );
+                    model.setData(
+                        model.index(newItemIndex),
+                        QVariant::fromValue<QColor>(color),
+                        Model::ProfessionModel::Role::Color
+                    );
+                    auto& stageModel = *static_cast<Model::StageModel*>(
+                        model.data(
+                            model.index(newItemIndex),
+                            Model::ProfessionModel::Role::Stages
+                        ).value<QObject*>()
+                    );
+                    if(auto stages = profession["stages"]; stages.is_seq())
+                    {
+                        for(const auto& stage: stages.children())
+                        {
+                            auto stageName = childValueOr<std::string>(stage, "name");
+                            auto imageUrl = childValueOr<std::string>(stage, "imageUrl");
+                            auto newStageIndex = stageModel.itemCount();
+                            stageModel.insertRow(newStageIndex);
+                            stageModel.setData(
+                                stageModel.index(newStageIndex),
+                                QVariant::fromValue<QString>(QString::fromStdString(name)),
+                                Model::StageModel::Role::Name
+                            );
+                            stageModel.setData(
+                                stageModel.index(newStageIndex),
+                                QVariant::fromValue<QUrl>(QUrl(QString::fromStdString(imageUrl))),
+                                Model::StageModel::Role::Name
+                            );
+                            auto& itemModel = *static_cast<Model::ItemModel*>(
+                                stageModel.data(
+                                    stageModel.index(newStageIndex),
+                                    Model::StageModel::Role::Items
+                                ).value<QObject*>()
+                            );
+                            if(auto items = stage["items"]; items.is_seq())
+                            {
+                                for(const auto& item: items.children())
+                                {
+                                    auto desc = childValueOr<std::string>(item, "desc");
+                                    std::vector<QPointF> path;
+                                    if(auto points = item["points"]; points.is_seq())
+                                    {
+                                        for(const auto& point: points.children())
+                                        {
+                                            auto x = childValueOr(point, "x", -1.0);
+                                            auto y = childValueOr(point, "y", -1.0);
+                                            if(x != -1 && y != -1)
+                                            {
+                                                path.emplace_back(
+                                                    static_cast<qreal>(x),
+                                                    static_cast<qreal>(y)
+                                                );
+                                            }
+                                        }
+                                    }
+                                    auto newItemIndex = itemModel.itemCount();
+                                    itemModel.insertRow(newItemIndex);
+                                    itemModel.setData(
+                                        itemModel.index(newItemIndex),
+                                        QVariant::fromValue<QString>(QString::fromStdString(desc)),
+                                        Model::ItemModel::Role::Description
+                                    );
+                                    itemModel.setData(
+                                        itemModel.index(newItemIndex),
+                                        QVariant::fromValue<std::vector<QPointF>>(path),
+                                        Model::ItemModel::Role::Path
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void saveAppData(const FindOddity::Model::ProfessionModel& model)
+{
+
+}
+}
