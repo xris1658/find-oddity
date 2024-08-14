@@ -47,6 +47,7 @@ Item {
             property int prevY: 0
             z: 1
             enabled: itemList.currentIndex != -1
+            signal pathUpdated()
             onPressed: {
                 impl.editingPathPolyline.path = [];
                 prevX = mouseX;
@@ -61,6 +62,7 @@ Item {
                 impl.editingPathPolyline.path.push(
                     Qt.point(impl.editingShapePath.startX, impl.editingShapePath.startY)
                 );
+                pathUpdated();
             }
             onPositionChanged: (mouse) => {
                 if(containsPress) {
@@ -97,6 +99,12 @@ Item {
                     text: im_description.length !== 0? im_description: "(无描述)"
                     highlighted: itemList.currentIndex == index
                     property Shape lassoShape: lassoShape
+                    Connections {
+                        target: highlighted? lassoArea: null
+                        function onPathUpdated() {
+                            im_path = impl.editingPathPolyline.path;
+                        }
+                    }
                     onHighlightedChanged: {
                         if(highlighted) {
                             impl.editingShapePath = lassoPath;

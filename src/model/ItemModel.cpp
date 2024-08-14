@@ -38,7 +38,7 @@ QVariant ItemModel::data(const QModelIndex& index, int role) const
         {
         case Role::Path:
         {
-            return QVariant::fromValue<std::vector<QPointF>>(data_[row].first);
+            return QVariant::fromValue<QList<QPointF>>(data_[row].first);
         }
         case Role::Description:
         {
@@ -57,7 +57,7 @@ bool ItemModel::setData(const QModelIndex& index, const QVariant& value, int rol
         {
         case Role::Path:
         {
-            data_[row].first = value.value<std::vector<QPointF>>();
+            data_[row].first = value.value<QList<QPointF>>();
             dataChanged(index, index, {Role::Path});
             return true;
         }

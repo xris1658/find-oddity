@@ -37,10 +37,11 @@ public:
 protected:
     QHash<int, QByteArray> roleNames() const override;
 private:
-    std::vector<std::pair<std::vector<QPointF>, QString>> data_;
+    std::vector<std::pair<QList<QPointF>, QString>> data_;
 };
 }
 
 Q_DECLARE_METATYPE(FindOddity::Model::ItemModel)
+Q_DECLARE_METATYPE(QPointF)
 
 #endif // FIND_ODDITY_MODEL_ITEMMODEL

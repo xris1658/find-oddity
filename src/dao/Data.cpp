@@ -146,7 +146,7 @@ void loadAppData(FindOddity::Model::ProfessionModel& model)
                                 for(const auto& item: items.children())
                                 {
                                     auto desc = childValueOr<std::string>(item, "desc");
-                                    std::vector<QPointF> path;
+                                    QList<QPointF> path;
                                     if(auto points = item["points"]; points.is_seq())
                                     {
                                         for(const auto& point: points.children())
@@ -171,7 +171,7 @@ void loadAppData(FindOddity::Model::ProfessionModel& model)
                                     );
                                     itemModel.setData(
                                         itemModel.index(newItemIndex),
-                                        QVariant::fromValue<std::vector<QPointF>>(path),
+                                        QVariant::fromValue<QList<QPointF>>(path),
                                         Model::ItemModel::Role::Path
                                     );
                                 }
@@ -271,8 +271,8 @@ void saveAppData(const FindOddity::Model::ProfessionModel& model)
                 pointsNode.set_key("points");
                 const auto& points = itemModel.data(
                     itemModel.index(k),
-                    Model::ItemModel::Role::Description
-                ).value<std::vector<QPointF>>();
+                    Model::ItemModel::Role::Path
+                ).value<QList<QPointF>>();
                 for(auto& point: points)
                 {
                     auto pointNode = pointsNode.append_child(
