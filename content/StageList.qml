@@ -10,6 +10,7 @@ Item {
     property int currentIndex: -1
     property url currentImageUrl
     property var currentItemList: null
+    property bool showEditButton: true
     signal itemSelected()
 
     property FontLoader fontLoader
@@ -31,6 +32,7 @@ Item {
             delegate: ItemDelegate {
                 id: itemDelegate
                 width: itemList.width
+                leftPadding: height
                 text: sm_name.length !== 0? sm_name: "关卡 %1".arg(index + 1)
                 Connections {
                     target: root.currentIndex == index? root: null
@@ -48,13 +50,14 @@ Item {
                 Row {
                     id: options
                     z: 1
-                    visible: true
+                    visible: root.showEditButton
                     anchors.right: parent.right
                     anchors.rightMargin: 3
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 3
                     Button {
                         text: "修改名称"
+                        enabled: options.visible
                         onClicked: {
                             editRow.visible = true;
                             textField.text = sm_name;
@@ -64,6 +67,7 @@ Item {
                     }
                     Button {
                         text: "移除"
+                        enabled: options.visible
                         onClicked: {
                             itemList.model.removeRows(index, 1);
                         }
@@ -117,9 +121,11 @@ Item {
         Row {
             Layout.minimumHeight: height
             spacing: 10
+            visible: root.showEditButton
             Button {
                 id: addItemButton
                 text: "添加关卡"
+                enabled: root.showEditButton
                 onClicked: {
                     let count = itemList.count;
                     itemList.model.insertRows(count, 1);

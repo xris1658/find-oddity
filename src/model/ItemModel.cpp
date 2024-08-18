@@ -38,11 +38,15 @@ QVariant ItemModel::data(const QModelIndex& index, int role) const
         {
         case Role::Path:
         {
-            return QVariant::fromValue<QList<QPointF>>(data_[row].first);
+            return QVariant::fromValue<QList<QPointF>>(data_[row].points);
         }
         case Role::Description:
         {
-            return QVariant::fromValue<QString>(data_[row].second);
+            return QVariant::fromValue<QString>(data_[row].desc);
+        }
+        case Role::Found:
+        {
+            return QVariant::fromValue<bool>(data_[row].found);
         }
         }
     }
@@ -57,14 +61,20 @@ bool ItemModel::setData(const QModelIndex& index, const QVariant& value, int rol
         {
         case Role::Path:
         {
-            data_[row].first = value.value<QList<QPointF>>();
+            data_[row].points = value.value<QList<QPointF>>();
             dataChanged(index, index, {Role::Path});
             return true;
         }
         case Role::Description:
         {
-            data_[row].second = value.value<QString>();
+            data_[row].desc = value.value<QString>();
             dataChanged(index, index, {Role::Description});
+            return true;
+        }
+        case Role::Found:
+        {
+            data_[row].found = value.value<bool>();
+            dataChanged(index, index, {Role::Found});
             return true;
         }
         }
@@ -142,11 +152,21 @@ bool ItemModel::removeRows(int row, int count, const QModelIndex& parent)
     return false;
 }
 
+void ItemModel::init()
+{
+    for(auto& item: data_)
+    {
+        item.found = false;
+    }
+    dataChanged(index(0), index(data_.size() - 1), {Role::Found});
+}
+
 QHash<int, QByteArray> ItemModel::roleNames() const
 {
     return {
         std::make_pair(Role::Path,        "im_path"),
-        std::make_pair(Role::Description, "im_description")
+        std::make_pair(Role::Description, "im_description"),
+        std::make_pair(Role::Found,       "im_found"),
     };
 }
 }

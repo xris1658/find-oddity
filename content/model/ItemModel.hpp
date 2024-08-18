@@ -13,10 +13,18 @@ class ItemModel: public QAbstractListModel
 {
     Q_OBJECT
 public:
+    struct Item
+    {
+        QList<QPointF> points;
+        QString desc;
+        bool found = false;
+    };
+public:
     enum Role
     {
         Path = Qt::UserRole,
         Description,
+        Found,
         RoleCount
     };
 public:
@@ -34,10 +42,12 @@ public:
     bool moveRows(const QModelIndex& sourceParent, int sourceRow, int count,
         const QModelIndex& destParent, int destRow) override;
     bool removeRows(int row, int count, const QModelIndex& parent) override;
+public:
+    Q_INVOKABLE void init();
 protected:
     QHash<int, QByteArray> roleNames() const override;
 private:
-    std::vector<std::pair<QList<QPointF>, QString>> data_;
+    std::vector<Item> data_;
 };
 }
 

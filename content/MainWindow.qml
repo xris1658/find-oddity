@@ -24,6 +24,7 @@ Window {
         id: professionList
         anchors.fill: parent
         anchors.margins: 20
+        showEditButton: true
         onStageSelected: {
             stageList.model = currentStageList;
             visible = false;
@@ -97,6 +98,43 @@ Window {
         }
         Creator {
             id: creator
+            Layout.preferredWidth: creatorPlaceholder.width
+            Layout.fillHeight: true
+            fontLoader: root.isOnWasm? fontLoader: null
+            onPlay: {
+                creatorPlaceholder.visible = false;
+                playerPlaceholder.visible = true;
+                player.model = creator.model;
+                player.imageUrl = creator.imageUrl;
+                player.init();
+            }
+        }
+    }
+    ColumnLayout {
+        id: playerPlaceholder
+        anchors.fill: parent
+        anchors.margins: 20
+        visible: false
+        Item {
+            Layout.preferredWidth: creatorPlaceholder.width
+            Layout.minimumHeight: creatorReturnButton.height
+            Button {
+                id: playerReturnButton
+                text: "< 返回"
+                onClicked: {
+                    playerPlaceholder.visible = false;
+                    creatorPlaceholder.visible = true;
+                }
+            }
+            Label {
+                text: professionList.currentName + " - " + stageList.currentName
+                anchors.left: playerReturnButton.right
+                anchors.leftMargin: 5
+                anchors.verticalCenter: parent.verticalCenter
+            }
+        }
+        Player {
+            id: player
             Layout.preferredWidth: creatorPlaceholder.width
             Layout.fillHeight: true
             fontLoader: root.isOnWasm? fontLoader: null

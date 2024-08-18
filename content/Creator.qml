@@ -17,6 +17,8 @@ Item {
 
     property FontLoader fontLoader
 
+    signal play()
+
     QtObject {
         id: impl
         property ShapePath editingShapePath
@@ -40,39 +42,39 @@ Item {
                 fillMode: Image.PreserveAspectCrop
                 clip: true
             }
-        }
-        MouseArea {
-            id: lassoArea
-            anchors.fill: parent
-            property int prevX: 0
-            property int prevY: 0
-            z: 1
-            enabled: itemList.currentIndex != -1
-            signal pathUpdated()
-            onPressed: {
-                impl.editingPathPolyline.path = [];
-                prevX = mouseX;
-                prevY = mouseY;
-                impl.editingShapePath.startX = mouseX / imagePlaceholder.width;
-                impl.editingShapePath.startY = mouseY / imagePlaceholder.height;
-                impl.editingPathPolyline.path.push(
-                    Qt.point(impl.editingShapePath.startX, impl.editingShapePath.startY)
-                );
-            }
-            onReleased: {
-                impl.editingPathPolyline.path.push(
-                    Qt.point(impl.editingShapePath.startX, impl.editingShapePath.startY)
-                );
-                pathUpdated();
-            }
-            onPositionChanged: (mouse) => {
-                if(containsPress) {
-                    if(Math.sqrt(Math.pow(mouseX - prevX, 2) + Math.pow(mouseY - prevY, 2)) >= 4) {
-                        impl.editingPathPolyline.path.push(
-                            Qt.point(mouseX / imagePlaceholder.width, mouseY / imagePlaceholder.width)
-                        );
-                        lassoArea.prevX = mouseX;
-                        lassoArea.prevY = mouseY;
+            MouseArea {
+                id: lassoArea
+                anchors.fill: parent
+                property int prevX: 0
+                property int prevY: 0
+                z: 1
+                enabled: itemList.currentIndex != -1
+                signal pathUpdated()
+                onPressed: {
+                    impl.editingPathPolyline.path = [];
+                    prevX = mouseX;
+                    prevY = mouseY;
+                    impl.editingShapePath.startX = mouseX / imagePlaceholder.width;
+                    impl.editingShapePath.startY = mouseY / imagePlaceholder.height;
+                    impl.editingPathPolyline.path.push(
+                        Qt.point(impl.editingShapePath.startX, impl.editingShapePath.startY)
+                    );
+                }
+                onReleased: {
+                    impl.editingPathPolyline.path.push(
+                        Qt.point(impl.editingShapePath.startX, impl.editingShapePath.startY)
+                    );
+                    pathUpdated();
+                }
+                onPositionChanged: (mouse) => {
+                    if(containsPress) {
+                        if(Math.sqrt(Math.pow(mouseX - prevX, 2) + Math.pow(mouseY - prevY, 2)) >= 4) {
+                            impl.editingPathPolyline.path.push(
+                                Qt.point(mouseX / imagePlaceholder.width, mouseY / imagePlaceholder.width)
+                            );
+                            lassoArea.prevX = mouseX;
+                            lassoArea.prevY = mouseY;
+                        }
                     }
                 }
             }
@@ -234,32 +236,43 @@ Item {
                     }
                 }
             }
-            Row {
-                Layout.minimumHeight: height
-                spacing: 10
-                Button {
-                    id: setImageButton
-                    text: "设置图片..."
-                    onClicked: {
-                        imagePicker.open();
+            Item {
+                Layout.preferredWidth: itemListPlaceholder.width
+                Layout.minimumHeight: buttons.height
+                Row {
+                    id: buttons
+                    spacing: 10
+                    Button {
+                        id: setImageButton
+                        text: "设置图片..."
+                        onClicked: {
+                            imagePicker.open();
+                        }
+                        FileDialog {
+                            id: imagePicker
+                            nameFilters: ["图像文件 (*.jpg *.png *.jpeg *.bmp)"]
+                            onAccepted: {
+                                image.source = imagePicker.currentFile;
+                            }
+                        }
                     }
-
-                    FileDialog {
-                        id: imagePicker
-                        nameFilters: ["图像文件 (*.jpg *.png *.jpeg *.bmp)"]
-                        onAccepted: {
-                            image.source = imagePicker.currentFile;
+                    Button {
+                        id: addPathButton
+                        text: "添加路径"
+                        onClicked: {
+                            impl.lassoAreaInitialSize = imagePlaceholder.width;
+                            let count = itemList.count;
+                            itemList.model.insertRows(count, 1);
+                            itemList.currentIndex = count;
                         }
                     }
                 }
                 Button {
-                    id: addPathButton
-                    text: "添加路径"
+                    id: playButton
+                    anchors.right: parent.right
+                    text: "试玩"
                     onClicked: {
-                        impl.lassoAreaInitialSize = imagePlaceholder.width;
-                        let count = itemList.count;
-                        itemList.model.insertRows(count, 1);
-                        itemList.currentIndex = count;
+                        root.play();
                     }
                 }
             }

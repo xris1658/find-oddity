@@ -8,6 +8,7 @@ Item {
     property alias model: itemList.model
     property string currentName
     property var currentStageList: null
+    property bool showEditButton: true
     signal stageSelected()
 
     ColumnLayout {
@@ -30,23 +31,25 @@ Item {
                 text: pm_name.length !== 0? pm_name: "工种 %1".arg(index + 1)
                 Row {
                     id: options
+                    visible: root.showEditButton
                     z: 1
-                    visible: true
                     anchors.right: parent.right
                     anchors.rightMargin: 3
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 3
                     Button {
                         text: "修改名称"
+                        enabled: options.visible
                         onClicked: {
                             editRow.visible = true;
                             textField.text = pm_name;
                             textField.selectAll();
-                            textField.forceActiveFocus();
+                            textField.forceAKctiveFocus();
                         }
                     }
                     Button {
                         text: "移除"
+                        enabled: options.visible
                         onClicked: {
                             itemList.model.removeRows(index, 1);
                         }
@@ -98,9 +101,11 @@ Item {
         Row {
             Layout.minimumHeight: height
             spacing: 10
+            visible: root.showEditButton
             Button {
                 id: addItemButton
                 text: "添加工种"
+                enabled: root.showEditButton
                 onClicked: {
                     let count = itemList.count;
                     itemList.model.insertRows(count, 1);
