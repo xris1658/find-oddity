@@ -22,7 +22,7 @@ include_directories(
 
 add_subdirectory(content)
 
-qt_add_executable(FindOddity
+qt_add_executable(FindOddityCreator
                   src/controller/ConnectModelWithData.cpp
                   src/controller/ConnectModelWithData.hpp
                   src/dao/Data.cpp
@@ -32,7 +32,24 @@ qt_add_executable(FindOddity
                   src/model/ModelInitializer.cpp
                   src/model/ProfessionModel.cpp
                   src/model/StageModel.cpp
+                  src/Creator.cpp
                   src/main.cpp
 )
 
-target_link_libraries(FindOddity PRIVATE content ryml::ryml Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick)
+qt_add_executable(FindOddityPlayer
+                  src/controller/ConnectModelWithData.cpp
+                  src/controller/ConnectModelWithData.hpp
+                  src/dao/Data.cpp
+                  src/dao/Data.hpp
+                  src/model/ItemModel.cpp
+                  src/model/ModelInitializer.hpp
+                  src/model/ModelInitializer.cpp
+                  src/model/ProfessionModel.cpp
+                  src/model/StageModel.cpp
+                  src/Player.cpp
+                  src/main.cpp
+)
+
+target_link_libraries(FindOddityCreator PRIVATE content ryml::ryml Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick)
+
+target_link_libraries(FindOddityPlayer PRIVATE content ryml::ryml Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick)

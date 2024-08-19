@@ -8,6 +8,8 @@
 #include <QQuickWindow>
 #include <QVariant>
 
+extern bool isCreator;
+
 int main(int argc, char** argv)
 {
     QGuiApplication application(argc, argv);
@@ -35,5 +37,9 @@ int main(int argc, char** argv)
         QVariant::fromValue<QObject*>(&professionModel)
     );
     FindOddity::Controller::connectToProfessionModel(professionModel);
+    mainWindow->setProperty(
+        "showEditButton",
+        QVariant::fromValue<bool>(isCreator)
+    );
     return application.exec();
 }

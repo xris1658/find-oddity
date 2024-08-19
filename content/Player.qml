@@ -63,6 +63,7 @@ Item {
                     anchors.fill: parent
                     containsMode: Shape.FillContains
                     clip: true
+                    property point descriptionAnchorPoint: Qt.point(0.5, 0.5)
                     signal testPoint(point: point)
                     onTestPoint: (point) => {
                         if(contains(point) && !im_found) {
@@ -80,6 +81,31 @@ Item {
                         fillColor: im_found? "#80808040": "transparent"
                         PathPolyline {
                             path: im_path
+                            onPathChanged: {
+                                let upperPointIndex = 0;
+                                for(let i = 1; i < im_path.length; ++i) {
+                                    if(im_path[i].y < im_path[upperPointIndex].y
+                                        && im_path[i].x < im_path[upperPointIndex].x) {
+                                        upperPointIndex = i;
+                                    }
+                                }
+                                lassoShape.descriptionAnchorPoint = im_path[upperPointIndex];
+                            }
+                        }
+                    }
+                    Label {
+                        x: lassoShape.descriptionAnchorPoint.x * lassoShape.width - width / 2
+                        y: lassoShape.descriptionAnchorPoint.y * lassoShape.height - height
+                        id: lassoDescription
+                        text: im_description
+                        padding: 10
+                        width: Math.min(contentWidth, 200)
+                        visible: im_found
+                        wrapMode: Label.Wrap
+                        color: "#FFFFFF"
+                        background: Rectangle {
+                            opacity: 1
+                            color: "#333333"
                         }
                     }
                 }

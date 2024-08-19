@@ -16,6 +16,8 @@ Window {
     minimumHeight: creator.minimumHeight + creator.anchors.margins * 2
     property bool isOnWasm: false
     property alias professionModel: professionList.model
+    property bool showEditButton: true
+    title: showEditButton? "一起来找茬 创作端": "一起来找茬 用户端"
     FontLoader {
         id: fontLoader
         source: "./font/wqy-microhei.ttc"
@@ -24,7 +26,7 @@ Window {
         id: professionList
         anchors.fill: parent
         anchors.margins: 20
-        showEditButton: true
+        showEditButton: root.showEditButton
         onStageSelected: {
             stageList.model = currentStageList;
             visible = false;
@@ -58,12 +60,20 @@ Window {
             id: stageList
             Layout.preferredWidth: stageListPlaceholder.width
             Layout.fillHeight: true
+            showEditButton: root.showEditButton
             fontLoader: root.isOnWasm? fontLoader: null
             onItemSelected: {
-                creator.model = currentItemList;
                 stageListPlaceholder.visible = false;
-                creatorPlaceholder.visible = true;
-                creator.imageUrl = currentImageUrl;
+                if(showEditButton) {
+                    creator.model = currentItemList;
+                    creatorPlaceholder.visible = true;
+                    creator.imageUrl = currentImageUrl;
+                }
+                else {
+                    player.model = currentItemList;
+                    playerPlaceholder.visible = true;
+                    player.imageUrl = currentImageUrl;
+                }
             }
             Connections {
                 target: root.currentIndex != -1? creator: null
@@ -123,7 +133,12 @@ Window {
                 text: "< 返回"
                 onClicked: {
                     playerPlaceholder.visible = false;
-                    creatorPlaceholder.visible = true;
+                    if(root.showEditButton) {
+                        creatorPlaceholder.visible = true;
+                    }
+                    else {
+                        stageListPlaceholder.visible = true;
+                    }
                 }
             }
             Label {
