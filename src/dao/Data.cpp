@@ -25,7 +25,7 @@
 
 namespace FindOddity::DAO
 {
-QString userDataPath()
+QString systemAppDataPath()
 {
 #if _WIN32
     wchar_t* path = nullptr;
@@ -37,31 +37,29 @@ QString userDataPath()
     );
     return QString::fromWCharArray(path);
 #elif __linux__
-    return QString(std::getenv("HOME")) + "/.local/share/FindOddity";
+    return QString(std::getenv("HOME")) + "/.local/share";
 #elif __EMSCRIPTEN__
     return "/home/web_user";
 #endif
 }
 
-QString appDataPath()
+QString userDataPath()
 {
 #if _WIN32
-    return userDataPath() + "\\FindOddity";
-#elif __linux__
-    return userDataPath() + "/.local/share/FindOddity";
-#elif __EMSCRIPTEN__
-    return userDataPath() + "/FindOddity";
+    return systemAppDataPath() + "\\FindOddity";
+#else
+    return systemAppDataPath() + "/FindOddity";
 #endif
 }
 
 QString appDataFilePath()
 {
 #if _WIN32
-    return appDataPath() + "\\" + "data.yml";
+    return userDataPath() + "\\" + "data.yml";
 #elif __linux__
-    return appDataPath() + "/" + "data.yml";
+    return userDataPath() + "/" + "data.yml";
 #elif __EMSCRIPTEN__
-    return appDataPath() + "/" + "data.yml";
+    return userDataPath() + "/" + "data.yml";
 #endif
 }
 
