@@ -23,16 +23,16 @@ include_directories(
 add_subdirectory(content)
 
 qt_add_executable(FindOddity
-    src/dao/Data.cpp
-    src/dao/Data.hpp
-
-
-    src/model/ItemModel.cpp
-    src/model/ModelInitializer.hpp
-    src/model/ModelInitializer.cpp
-    src/model/ProfessionModel.cpp
-    src/model/StageModel.cpp
-    src/main.cpp
+                  src/controller/ConnectModelWithData.cpp
+                  src/controller/ConnectModelWithData.hpp
+                  src/dao/Data.cpp
+                  src/dao/Data.hpp
+                  src/model/ItemModel.cpp
+                  src/model/ModelInitializer.hpp
+                  src/model/ModelInitializer.cpp
+                  src/model/ProfessionModel.cpp
+                  src/model/StageModel.cpp
+                  src/main.cpp
 )
 
 target_link_libraries(FindOddity PRIVATE content ryml::ryml Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick)
