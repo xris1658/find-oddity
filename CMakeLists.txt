@@ -23,6 +23,7 @@ include_directories(
 add_subdirectory(content)
 
 qt_add_executable(FindOddityCreator
+                  rc/FindOddityCreator.rc
                   src/controller/ConnectModelWithData.cpp
                   src/controller/ConnectModelWithData.hpp
                   src/dao/Data.cpp
@@ -37,6 +38,7 @@ qt_add_executable(FindOddityCreator
 )
 
 qt_add_executable(FindOddityPlayer
+                  rc/FindOddityPlayer.rc
                   src/controller/ConnectModelWithData.cpp
                   src/controller/ConnectModelWithData.hpp
                   src/dao/Data.cpp
