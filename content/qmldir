@@ -1,5 +1,9 @@
 module content
 
+About 1.0 About.qml
+AboutQt 1.0 AboutQt.qml
 Creator 1.0 Creator.qml
 MainWindow 1.0 MainWindow.qml
+ProfessionList 1.0 ProfessionList.qml
+StageList 1.0 StageList.qml
 Player 1.0 Player.qml

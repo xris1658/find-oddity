@@ -5,6 +5,8 @@ qt_add_qml_module(content
                   VERSION 1.0
                   NO_PLUGIN
                   QML_FILES
+                  About.qml
+                  AboutQt.qml
                   Creator.qml
                   MainWindow.qml
                   Player.qml
@@ -16,4 +18,6 @@ qt_add_qml_module(content
                   model/StageModel.hpp
                   RESOURCES
                   qmldir
-                  ./font/wqy-microhei.ttc)
+                  ./font/wqy-microhei.ttc
+                  ./images/qtlogo-64.png
+)

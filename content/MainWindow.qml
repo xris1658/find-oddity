@@ -32,6 +32,23 @@ Window {
             visible = false;
             stageListPlaceholder.visible = true;
         }
+        Row {
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            spacing: 5
+            Button {
+                text: "关于此软件(&A)..."
+                onClicked: {
+                    aboutPopup.open();
+                }
+            }
+            Button {
+                text: "关于 Qt(&Q)..."
+                onClicked: {
+                    aboutQtPopup.open();
+                }
+            }
+        }
     }
     ColumnLayout {
         id: stageListPlaceholder
@@ -154,5 +171,13 @@ Window {
             Layout.fillHeight: true
             fontLoader: root.isOnWasm? fontLoader: null
         }
+    }
+    About {
+        id: aboutPopup
+        anchors.centerIn: parent
+    }
+    AboutQt {
+        id: aboutQtPopup
+        anchors.centerIn: parent
     }
 }
