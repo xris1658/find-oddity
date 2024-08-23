@@ -198,6 +198,10 @@ void loadAppData(FindOddity::Model::ProfessionModel& model)
     }
     else
     {
+        if(!QDir(userDataPath()).exists())
+        {
+            QDir(systemAppDataPath()).mkdir("FindOddity");
+        }
         file.open(QIODevice::OpenModeFlag::WriteOnly | QIODevice::OpenModeFlag::Truncate);
         file.write("professions: []");
         file.close();
@@ -304,8 +308,6 @@ void saveAppData(const FindOddity::Model::ProfessionModel& model)
             }
         }
     }
-    QFile file(appDataFilePath());
-    file.open(QIODevice::OpenModeFlag::WriteOnly | QIODevice::OpenModeFlag::Truncate);
     std::vector<char> buffer(1024);
     ryml::substr substr(buffer.data(), buffer.size());
     auto substr1 = ryml::emit_yaml(tree, substr, false);
@@ -315,6 +317,15 @@ void saveAppData(const FindOddity::Model::ProfessionModel& model)
         substr = {buffer.data(), buffer.size()};
         substr1 = ryml::emit_yaml(tree, substr, false);
     }
+    QFile file(appDataFilePath());
+    if(!file.exists())
+    {
+        if(!QDir(userDataPath()).exists())
+        {
+            QDir(systemAppDataPath()).mkdir("FindOddity");
+        }
+    }
+    file.open(QIODevice::OpenModeFlag::WriteOnly | QIODevice::OpenModeFlag::Truncate);
     file.write(substr1.data(), substr1.size());
     file.close();
 }
