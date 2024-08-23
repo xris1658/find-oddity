@@ -21,14 +21,14 @@ Item {
             clip: true
             Label {
                 anchors.centerIn: parent
-                text: "无工种"
+                text: "无关卡集"
                 color: "#FFFFFF"
                 visible: itemList.count == 0
             }
             delegate: ItemDelegate {
                 id: itemDelegate
                 width: itemList.width
-                text: pm_name.length !== 0? pm_name: "工种 %1".arg(index + 1)
+                text: pm_name.length !== 0? pm_name: "关卡集 %1".arg(index + 1)
                 Row {
                     id: options
                     visible: root.showEditButton
@@ -44,7 +44,7 @@ Item {
                             editRow.visible = true;
                             textField.text = pm_name;
                             textField.selectAll();
-                            textField.forceAKctiveFocus();
+                            textField.forceActiveFocus();
                         }
                     }
                     Button {
@@ -104,7 +104,7 @@ Item {
             visible: root.showEditButton
             Button {
                 id: addItemButton
-                text: "添加工种"
+                text: "添加关卡集"
                 enabled: root.showEditButton
                 onClicked: {
                     let count = itemList.count;

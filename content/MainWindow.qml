@@ -90,10 +90,11 @@ Window {
                     player.model = currentItemList;
                     playerPlaceholder.visible = true;
                     player.imageUrl = currentImageUrl;
+                    player.init();
                 }
             }
             Connections {
-                target: root.currentIndex != -1? creator: null
+                target: stageList.currentIndex != -1? creator: null
                 function onImageUrlChanged() {
                     stageList.currentImageUrl = creator.imageUrl;
                 }
@@ -114,6 +115,7 @@ Window {
                 onClicked: {
                     creatorPlaceholder.visible = false;
                     stageListPlaceholder.visible = true;
+                    stageList.currentIndex = -1;
                 }
             }
             Label {
