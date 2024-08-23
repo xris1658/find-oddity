@@ -70,8 +70,11 @@ T childValueOr(const U& nodeRef, ryml::csubstr child, const T& value)
     if(nodeRef.has_child(child))
     {
         T ret;
-        nodeRef[child] >> ret;
-        return ret;
+        if(ryml::read(nodeRef[child], &ret))
+        {
+            return ret;
+        }
+        return value;
     }
     return value;
 }
@@ -83,8 +86,11 @@ T childValueOr(const U& nodeRef, ryml::csubstr child, T&& value = T())
     if(nodeRef.has_child(child))
     {
         T ret;
-        nodeRef[child] >> ret;
-        return ret;
+        if(ryml::read(nodeRef[child], &ret))
+        {
+            return ret;
+        }
+        return std::move(value);
     }
     return std::move(value);
 }
